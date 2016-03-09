@@ -22,6 +22,8 @@ class RegistrationForm(Form):
     password2 = PasswordField('Confirm password', validators=[Required()])
     submit = SubmitField('Register')
 
+    ''' The two methods will be invoked on the specified field with the other
+    validators to ensure that there is no duplicate data in the database.'''
     def validate_email(self, field):
         if User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already register')
@@ -29,4 +31,5 @@ class RegistrationForm(Form):
     def validate_username(self, field):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use')
+
 

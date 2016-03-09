@@ -4,11 +4,14 @@
 {% block title %} Flasky {% endblock %}
 {% block page_content %}
 <div class="page-header">
-	{% if user %}
-	<h1>Hi, {{ user }}!</h1>
+	<h1>
+	Hello, 
+	{% if current_user.is_authenticated %}
+		{{ current_user.username }}
 	{% else %}
-	<h1>Welcome...</h1>
-	{% endif %}
+		stranger
+	{% endif %}!
+		</h1>
 </div>
 	{{ form.hidden_tag() }}
 	{{ wtf.quick_form(form) }}
