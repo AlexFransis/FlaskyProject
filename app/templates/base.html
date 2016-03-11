@@ -7,8 +7,7 @@
 	<div class="navbar navbar-inverse" role="navigation">
 		<div class="container">
 			<div class="navbar-header">
-				<button type="button" class="navbar-toggle" data-toggle="collapse"
-					data-target=".navbar-collapse">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 					<span class="sr-only">Toggle navigation</span>
 				</button>
 				<a class="navbar-brand" href="/">Flasky</a>
@@ -33,7 +32,7 @@
 	<div class="container">
 		{% for message in get_flashed_messages() %}
 		<div class="alert alert-warning">
-			<button type="button" class="close" data-dismiss="alert">%times;</button>
+			<button type="button" class="close" data-dismiss="alert">&times;</button>
 			{{ message }}
 		</div>
 		{% endfor %}

@@ -22,7 +22,10 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128))
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
-    confirmed = db.Column(db.Boolean, default=False) # if the user has confirmed registration
+    confirmed = db.Column(db.Boolean, default=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
 
     @login_manager.user_loader
     def load_user(user_id):
@@ -39,9 +42,6 @@ class User(UserMixin, db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def __repr__(self):
-        return '<User %r>' % self.username
-
     def generate_confirmation_token(self, expiration=3600):
         s = Serializer(current_app.config['SECRET_KEY'], expiration) # takes a key and an expiration time
         return s.dumps({'confirm': self.id}) # the data encrypted is the user's id
@@ -52,8 +52,8 @@ class User(UserMixin, db.Model):
             data = s.loads(token)
         except:
             return False
-        if data.get('confirm') != self.id: #will verify if data matches the id of current_user
+        if data.get('confirm') != self.id: # will verify if data matches the id of current_user
             return False
-        self.confirmed = True #will confirm user and update database if validated
+        self.confirmed = True # will confirm user and update database
         db.session.add(self)
         return True
