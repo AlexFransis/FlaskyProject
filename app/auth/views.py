@@ -2,7 +2,7 @@ from flask import render_template, redirect, request, url_for, flash
 from flask.ext.login import login_user, current_user
 from . import auth
 from ..models import User
-from .forms import LoginForm, RegistrationForm
+from .forms import LoginForm, RegistrationForm, PasswordResetRequestForm, PasswordResetForm
 from flask.ext.login import logout_user, login_required
 from ..email import send_email
 from .. import db
@@ -59,7 +59,8 @@ def before_request():
     3. The request endpoint is outside of the authentication blueprint
 
     If the three conditions are met, then a redirect is issued to a new
-    /auth/unconfirmed route that shows a page with information about confirmation '''
+    /auth/unconfirmed route that shows a page that states that the user
+    has to confirm his account. '''
 
     if current_user.is_authenticated \
             and not current_user.confirmed \
@@ -79,3 +80,34 @@ def resend_confirmation():
     send_email(current_user.email, 'Confirm Your Account', 'auth/email/confirm', user=current_user, token=token)
     flash('A new confirmation email has been sent to your email.')
     return redirect(url_for('main.index'))
+
+@auth.route('/reset', methods=['GET', 'POST'])
+def password_reset_request():
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetRequestForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user:
+            token = user.generate_reset_token()
+            send_email(user.email, 'Reset Your Password', 'auth/email/password_reset',
+                       user=user, token=token, next=request.args.get('next'))
+            flash('Instructions have been sent to your email.')
+            return redirect(url_for('auth.login'))
+    return render_template('auth/password_reset.html', form=form)
+
+@auth.route('reset/<token>', methods=['GET', 'POST'])
+def password_reset(token):
+    if not current_user.is_anonymous:
+        return redirect(url_for('main.index'))
+    form = PasswordResetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is None:
+            return redirect(url_for('main.index'))
+        if user.reset_password(token, form.password.data):
+            flash('Your password has been successfully changed.')
+            return redirect(url_for('main.index'))
+        else:
+            return redirect(url_for('main.index'))
+    return render_template('auth/password_reset.html', form=form)

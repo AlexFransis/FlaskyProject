@@ -5,6 +5,7 @@ hello.py
 __pycache__/
 *.py[cod]
 *.pyc
+*.swp
 
 # C extensions
 *.so

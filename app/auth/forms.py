@@ -32,4 +32,20 @@ class RegistrationForm(Form):
         if User.query.filter_by(username=field.data).first():
             raise ValidationError('Username already in use')
 
+class PasswordResetRequestForm(Form):
+    email = StringField('Email', validators=[Required(), Length(1, 64), Email()])
+    submit = SubmitField('Reset Password')
 
+class PasswordResetForm(Form):
+    email = StringField('Enter your email:', validators=[Required(), Length(1, 64), Email()])
+    password = PasswordField('New password', validators=[Required(), EqualTo('password2',
+                                                                             message='Passwords must match.')])
+    password2 = PasswordField('Confirm new passowrd', validators=[Required()])
+    submit = SubmitField('Change password')
+
+    def validate_email(self, field):
+        ''' This validator will verify that the email exits in the database before
+        reseting the password. '''
+
+        if User.query.filter_by(email=field.data).first() is None:
+            raise ValidationError('Unknown email address.')
