@@ -36,6 +36,13 @@ class PasswordResetRequestForm(Form):
     email = StringField('Email', validators=[Required(), Length(1, 64), Email()])
     submit = SubmitField('Reset Password')
 
+    def validate_email(self, field):
+        ''' This validator will verify that the email exits in the database before
+        sending the instructions to reset email to the user. '''
+
+        if User.query.filter_by(email=field.data).first() is None:
+            raise ValidationError('Unknown email address.')
+
 class PasswordResetForm(Form):
     email = StringField('Enter your email:', validators=[Required(), Length(1, 64), Email()])
     password = PasswordField('New password', validators=[Required(), EqualTo('password2',

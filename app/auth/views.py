@@ -43,7 +43,7 @@ def register():
 @auth.route('/confirm/<token>')
 @login_required
 def confirm(token):
-    if current_user.confirmed: # if confirmed == true send back the user to main page
+    if current_user.confirmed:
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         flash('You have confirmed your account. Thanks!')
@@ -62,10 +62,10 @@ def before_request():
     /auth/unconfirmed route that shows a page that states that the user
     has to confirm his account. '''
 
-    if current_user.is_authenticated \
-            and not current_user.confirmed \
-            and request.endpoint[:5] != 'auth.':
-        return redirect(url_for('auth.unconfirmed'))
+    if current_user.is_authenticated:
+        current_user.ping()
+        if not current_user.confirmed and request.endpoint[:5] != 'auth.':
+            return redirect(url_for('auth.unconfirmed'))
 
 @auth.route('/unconfirmed')
 def unconfirmed():
@@ -92,7 +92,7 @@ def password_reset_request():
             token = user.generate_reset_token()
             send_email(user.email, 'Reset Your Password', 'auth/email/password_reset',
                        user=user, token=token, next=request.args.get('next'))
-            flash('Instructions have been sent to your email.')
+            flash('Instructions to reset your password have been sent to your email.')
             return redirect(url_for('auth.login'))
     return render_template('auth/password_reset.html', form=form)
 

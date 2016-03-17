@@ -1,5 +1,7 @@
 # Individual files
 hello.py
+.profile
+.bash_profile
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
